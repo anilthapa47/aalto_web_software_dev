@@ -2,22 +2,23 @@ import { Hono } from "jsr:@hono/hono@4.6.5";
 
 const app = new Hono();
 
-let temperature = 20;
+let cards = [];
 
-app.get("/temperature", (c) => c.json({ temperature }));
-app.post("/temperature", (c) => {
-  temperature++;
-  return c.json({ temperature });
+app.get("/cards", (c) => c.json({ cards }));
+
+app.post("/cards", async (c) => {
+  const body = await c.req.json();
+  cards.push(body);
+  return c.json({ cards });
 });
-app.delete("/temperature", (c) => {
-  temperature--;
-  return c.json({ temperature });
+
+app.delete("/cards/:id", (c) => {
+  const id = c.req.param("id");
+  cards = cards.filter((card) => card.id !== id);
+  return c.json({ cards });
 });
-app.put("/temperature", async (c) => {
-  const temp_put = await c.req.json();
-  temperature = temp_put.temperature;
-  return c.json({ temperature });
-});
+
+Deno.serve(app.fetch);
 
 
 Deno.serve({ port: 3000 }, app.fetch);
