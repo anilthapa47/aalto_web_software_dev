@@ -1,3 +1,3 @@
 import app from "./app.js";
 
-Deno.serve(app.fetch);
+Deno.serve( app.fetch);
