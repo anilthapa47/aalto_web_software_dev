@@ -10,20 +10,14 @@ const BANNED_WORDS = [
 
 const app = new Hono();
 
-const client = postgres({
-  user: "username",
-  database: "database",
-  host: "wsd_project_database", // the host of your PostgreSQL container/service
-  password: "password",
-  port: 5432,
-});
+const sql = postgres();
 
 
 
 
 app.get("/api/courses", async (c) => {
   try {
-    const courses = await client`SELECT id, name FROM courses`;
+    const courses = await sql`SELECT id, name FROM courses`;
     // Return as JSON
     return c.json(courses, 200);
   } catch (err) {
@@ -37,8 +31,8 @@ app.get("/api/courses/:id", async (c) => {
     const id = await c.req.param("id");
 
     // query the database
-    const course = await client`SELECT id, name FROM courses WHERE id = ${id}`;
-    if(course.length === 0) {
+    const course = await sql`SELECT id, name FROM courses WHERE id = ${id}`;
+    if (course.length === 0) {
       return c.json({ error: "Course not found" }, 404);
     }
     // Return as JSON
@@ -54,12 +48,12 @@ app.post("/api/courses", async (c) => {
     const body = await c.req.json();      // get JSON body
     const { name } = body;
 
-    if (!name) {
+    if (!name || name.length < 3) {
       return c.json({ error: "Course name is required" }, 400);
     }
 
     // Insert into the database and return the new row
-    const [newCourse] = await client`
+    const [newCourse] = await sql`
       INSERT INTO courses (name)
       VALUES (${name})
       RETURNING id, name
@@ -77,7 +71,7 @@ app.delete("/api/courses/:id", async (c) => {
     const id = c.req.param("id");
 
     // Delete the course and return the deleted row
-    const [deletedCourse] = await client`
+    const [deletedCourse] = await sql`
       DELETE FROM courses
       WHERE id = ${id}
       RETURNING id, name
@@ -100,7 +94,7 @@ app.get("/api/courses/:id/questions", async (c) => {
     const courseId = c.req.param("id"); // get course ID from path
 
     // Query the database for questions associated with this course
-    const questions = await client`
+    const questions = await sql`
       SELECT id, title, text, upvotes, course_id
       FROM questions
       WHERE course_id = ${courseId}
@@ -122,12 +116,12 @@ app.post("/api/courses/:id/questions", async (c) => {
     const { title, text } = body;
 
     // Basic validation
-    if (!title || !text) {
+    if (!title || title.length < 3 || !text || text.length < 3) {
       return c.json({ error: "Title and text are required" }, 400);
     }
 
     // Insert the new question into the database
-    const [newQuestion] = await client`
+    const [newQuestion] = await sql`
       INSERT INTO questions (title, text, upvotes, course_id)
       VALUES (${title}, ${text}, 0, ${courseId})
       RETURNING id, title, text, upvotes, course_id
@@ -148,7 +142,7 @@ app.post("/api/courses/:id/questions/:qId/upvote", async (c) => {
     const questionId = c.req.param("qId"); // question ID
 
     // Update the question's upvotes by 1 and return the updated row
-    const [updatedQuestion] = await client`
+    const [updatedQuestion] = await sql`
       UPDATE questions
       SET upvotes = upvotes + 1
       WHERE id = ${questionId} AND course_id = ${courseId}
@@ -173,7 +167,7 @@ app.delete("/api/courses/:id/questions/:qId", async (c) => {
     const questionId = c.req.param("qId"); // question ID
 
     // Delete the question and return the deleted row
-    const [deletedQuestion] = await client`
+    const [deletedQuestion] = await sql`
       DELETE FROM questions
       WHERE id = ${questionId} AND course_id = ${courseId}
       RETURNING id, title, text, upvotes, course_id

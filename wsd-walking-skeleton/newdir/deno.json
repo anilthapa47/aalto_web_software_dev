@@ -7,17 +7,6 @@
     "start": "deno run --allow-net --allow-env app-run.js"
   },
   "compilerOptions": {
-    "lib": [
-      "deno.ns",
-      "dom"
-    ]
-  },
-  "deploy": {
-    "project": "5d8803a6-ff0a-4a0a-9706-b9c80b9ae4d9",
-    "exclude": [
-      "**/node_modules"
-    ],
-    "include": [],
-    "entrypoint": "app-run.js"
+    "lib": ["deno.ns", "dom"]
   }
 }
