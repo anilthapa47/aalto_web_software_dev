@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 
-
 @import "@skeletonlabs/skeleton";
 @import "@skeletonlabs/skeleton/optional/presets";
 @import "@skeletonlabs/skeleton/themes/cerberus";
@@ -10,5 +9,5 @@
 
 html,
 body {
-  @apply h-full;
+    @apply h-full;
 }
