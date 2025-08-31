@@ -12,8 +12,9 @@
   }
 </script>
 
-{#if data.user}
-  <p>Hello {data.user}!</p>
+
+{#if data.user?.id}
+  <p>Hello {data.user?.id}!</p>
 {/if}
 
 <main class="container mx-auto max-w-lg">

@@ -34,7 +34,20 @@ export const actions = {
         return response;
     },
 
-    
+    login2: async ({ request }) => {
+        const data = await request.formData();
+        const response = await apiRequest(
+            "/api/auth/login",
+            Object.fromEntries(data),
+        );
+        if (response.ok) {
+            throw redirect(302, "/");
+        }
+
+        console.log(" login : Received a login request with the following data.");
+        console.log(data);
+        return await response.json();
+    },
     register: async ({ request }) => {
         const data = await request.formData();
         const response = await apiRequest(
